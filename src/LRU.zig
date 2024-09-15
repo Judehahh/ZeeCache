@@ -1,12 +1,13 @@
 const std = @import("std");
 const Allocator = std.mem.Allocator;
 const DoublyLinkedList = std.DoublyLinkedList;
+const StringArrayHashMap = std.StringArrayHashMap;
 const testing = std.testing;
 
 max_bytes: usize,
 nbytes: usize,
 allocator: Allocator,
-map: std.StringArrayHashMap(*Node),
+map: StringArrayHashMap(*Node),
 list: DoublyLinkedList(Entry),
 
 const Self = @This();
@@ -16,7 +17,7 @@ pub fn init(allocator: Allocator, max_bytes: usize) !Self {
         .max_bytes = max_bytes,
         .nbytes = 0,
         .allocator = allocator,
-        .map = std.StringArrayHashMap(*Node).init(allocator),
+        .map = StringArrayHashMap(*Node).init(allocator),
         .list = DoublyLinkedList(Entry){},
     };
     try self.map.ensureTotalCapacity(self.max_bytes);
@@ -78,12 +79,12 @@ const Entry = struct {
 const Node = DoublyLinkedList(Entry).Node;
 
 test "lru.zig: test lru.get()" {
-    var cache = try Self.init(testing.allocator, 1000);
-    defer cache.deinit();
+    var lru = try Self.init(testing.allocator, 1000);
+    defer lru.deinit();
 
-    try cache.add("key1", "1234");
+    try lru.add("key1", "1234");
 
-    const result = cache.get("key1");
+    const result = lru.get("key1");
     try std.testing.expectEqual(result, "1234");
 }
 
@@ -91,15 +92,15 @@ test "lru.zig: test lru.removeOldest()" {
     const keys = &[_][]const u8{ "key1", "key2", "key3" };
     const values = &[_][]const u8{ "value1", "value2", "v3" };
 
-    var cache = try Self.init(
+    var lru = try Self.init(
         testing.allocator,
         keys[0].len + keys[1].len + values[0].len + values[1].len,
     );
-    defer cache.deinit();
+    defer lru.deinit();
 
-    try cache.add(keys[0], values[0]);
-    try cache.add(keys[1], values[1]);
-    try cache.add(keys[2], values[2]);
+    try lru.add(keys[0], values[0]);
+    try lru.add(keys[1], values[1]);
+    try lru.add(keys[2], values[2]);
 
-    try std.testing.expectEqual(cache.len(), 2);
+    try std.testing.expectEqual(lru.len(), 2);
 }
