@@ -27,7 +27,7 @@ fn handler(connection: *net.Server.Connection) !void {
 
     var read_buffer: [1024]u8 = undefined;
     var server = http.Server.init(connection.*, &read_buffer);
-
     var request = try server.receiveHead();
+    std.debug.print("{s}\t{s}\n", .{ @tagName(request.head.method), request.head.target });
     try request.respond("Greeting from ZeeCache!\n", .{ .keep_alive = false });
 }
