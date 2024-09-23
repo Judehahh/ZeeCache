@@ -83,7 +83,7 @@ fn serverHttp(request: *std.http.Server.Request, zee: *ZeeCache) !void {
     });
 }
 
-test "test" {
+test "test HttpPool" {
     testing.log_level = .info;
 
     const db = Getter{
